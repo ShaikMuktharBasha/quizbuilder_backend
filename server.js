@@ -21,17 +21,33 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/quizzes', resultRoutes); // since results are under /api/quizzes
 
+// Database synchronization for Serverless (Vercel)
+// This ensures the DB is connected and tables exist before handling requests
+const dbReady = sequelize.sync().then(() => {
+  console.log('Database synced');
+}).catch(err => {
+  console.error('Unable to sync database:', err);
+});
+
+// Middleware to wait for DB connection
+app.use(async (req, res, next) => {
+  try {
+    await dbReady;
+    next();
+  } catch (err) {
+    console.error('Database connection error:', err);
+    res.status(500).json({ error: 'Database connection failed', details: err.message });
+  }
+});
+
 // Export the app for Vercel
 module.exports = app;
 
-// Only start server if run directly
+// Only start server if run directly (local development)
 if (require.main === module) {
-  sequelize.sync().then(() => {
-    console.log('Database synced');
+  dbReady.then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
-  }).catch(err => {
-    console.error('Unable to sync database:', err);
   });
 }
