@@ -21,11 +21,17 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/quizzes', resultRoutes); // since results are under /api/quizzes
 
-sequelize.sync().then(() => {
-  console.log('Database synced');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// Export the app for Vercel
+module.exports = app;
+
+// Only start server if run directly
+if (require.main === module) {
+  sequelize.sync().then(() => {
+    console.log('Database synced');
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  }).catch(err => {
+    console.error('Unable to sync database:', err);
   });
-}).catch(err => {
-  console.error('Unable to sync database:', err);
-});
+}
