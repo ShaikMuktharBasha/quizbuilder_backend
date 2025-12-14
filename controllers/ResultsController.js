@@ -5,16 +5,16 @@ const User = require('../models/User');
 class ResultsController {
   async getResultsByUser(req, res) {
     try {
-      const results = await QuizResult.findAll({
-        where: { userId: req.params.userId },
-        include: [Quiz, User],
-      });
+      const results = await QuizResult.find({ userId: req.params.userId })
+        .populate('quizId')
+        .populate('userId');
+      
       const dtos = results.map(r => ({
-        username: r.User.username,
+        username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
-        quizTitle: r.Quiz.title,
-        quizDescription: r.Quiz.description,
+        quizTitle: r.quizId ? r.quizId.title : 'Unknown Quiz',
+        quizDescription: r.quizId ? r.quizId.description : '',
       }));
       res.json(dtos);
     } catch (error) {
@@ -24,16 +24,16 @@ class ResultsController {
 
   async getResultsByQuiz(req, res) {
     try {
-      const results = await QuizResult.findAll({
-        where: { quizId: req.params.quizId },
-        include: [Quiz, User],
-      });
+      const results = await QuizResult.find({ quizId: req.params.quizId })
+        .populate('quizId')
+        .populate('userId');
+      
       const dtos = results.map(r => ({
-        username: r.User.username,
+        username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
-        quizTitle: r.Quiz.title,
-        quizDescription: r.Quiz.description,
+        quizTitle: r.quizId ? r.quizId.title : 'Unknown Quiz',
+        quizDescription: r.quizId ? r.quizId.description : '',
       }));
       res.json(dtos);
     } catch (error) {
@@ -43,15 +43,16 @@ class ResultsController {
 
   async getAllResults(req, res) {
     try {
-      const results = await QuizResult.findAll({
-        include: [Quiz, User],
-      });
+      const results = await QuizResult.find()
+        .populate('quizId')
+        .populate('userId');
+      
       const dtos = results.map(r => ({
-        username: r.User.username,
+        username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
-        quizTitle: r.Quiz.title,
-        quizDescription: r.Quiz.description,
+        quizTitle: r.quizId ? r.quizId.title : 'Unknown Quiz',
+        quizDescription: r.quizId ? r.quizId.description : '',
       }));
       res.json(dtos);
     } catch (error) {

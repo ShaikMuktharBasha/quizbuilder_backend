@@ -1,47 +1,26 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Quiz = require('./Quiz');
+const mongoose = require('mongoose');
 
-const Question = sequelize.define('Question', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  quizId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Quiz,
-      key: 'id',
-    },
-  },
+const questionSchema = new mongoose.Schema({
   questionText: {
-    type: DataTypes.TEXT,
-    allowNull: false,
+    type: String,
+    required: true,
   },
-  optionA: {
-    type: DataTypes.STRING(255),
-  },
-  optionB: {
-    type: DataTypes.STRING(255),
-  },
-  optionC: {
-    type: DataTypes.STRING(255),
-  },
-  optionD: {
-    type: DataTypes.STRING(255),
-  },
+  optionA: String,
+  optionB: String,
+  optionC: String,
+  optionD: String,
   correctOption: {
-    type: DataTypes.STRING(10),
-    allowNull: false,
+    type: String,
+    required: true,
   },
-}, {
-  tableName: 'Questions',
-  timestamps: true,
 });
 
-Quiz.hasMany(Question, { foreignKey: 'quizId' });
-Question.belongsTo(Quiz, { foreignKey: 'quizId' });
+questionSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
 
-module.exports = Question;
+module.exports = questionSchema;

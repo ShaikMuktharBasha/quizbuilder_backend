@@ -1,51 +1,41 @@
 const Quiz = require('../models/Quiz');
-const Question = require('../models/Question');
 const QuizResult = require('../models/QuizResult');
 
 class QuizService {
   async createQuiz(req) {
-    const quiz = await Quiz.create({
+    const quiz = new Quiz({
       title: req.title,
       description: req.description,
       createdBy: req.createdBy,
+      questions: req.questions.map(q => ({
+        questionText: q.questionText,
+        optionA: q.optionA,
+        optionB: q.optionB,
+        optionC: q.optionC,
+        optionD: q.optionD,
+        correctOption: q.correctOption,
+      })),
     });
 
-    const questions = req.questions.map(q => ({
-      quizId: quiz.id,
-      questionText: q.questionText,
-      optionA: q.optionA,
-      optionB: q.optionB,
-      optionC: q.optionC,
-      optionD: q.optionD,
-      correctOption: q.correctOption,
-    }));
-
-    await Question.bulkCreate(questions);
-
+    await quiz.save();
     return quiz;
   }
 
   async getAll() {
-    return await Quiz.findAll({ include: Question });
+    return await Quiz.find();
   }
 
   async getById(id) {
-    return await Quiz.findByPk(id, { include: Question });
+    return await Quiz.findById(id);
   }
 
   async updateQuiz(id, req) {
-    const quiz = await Quiz.findByPk(id);
+    const quiz = await Quiz.findById(id);
     if (!quiz) return null;
 
-    await quiz.update({
-      title: req.title,
-      description: req.description,
-    });
-
-    await Question.destroy({ where: { quizId: id } });
-
-    const questions = req.questions.map(q => ({
-      quizId: id,
+    quiz.title = req.title;
+    quiz.description = req.description;
+    quiz.questions = req.questions.map(q => ({
       questionText: q.questionText,
       optionA: q.optionA,
       optionB: q.optionB,
@@ -54,22 +44,21 @@ class QuizService {
       correctOption: q.correctOption,
     }));
 
-    await Question.bulkCreate(questions);
-
-    return await Quiz.findByPk(id, { include: Question });
+    await quiz.save();
+    return quiz;
   }
 
   async deleteQuiz(id) {
-    await Quiz.destroy({ where: { id } });
+    await Quiz.findByIdAndDelete(id);
   }
 
   async score(id, submission) {
-    const quiz = await Quiz.findByPk(id, { include: Question });
+    const quiz = await Quiz.findById(id);
     if (!quiz) return { score: 0 };
 
     let score = 0;
-    for (const q of quiz.Questions) {
-      const submitted = submission.answers[q.id];
+    for (const q of quiz.questions) {
+      const submitted = submission.answers[q._id.toString()];
       if (submitted && q.correctOption.toLowerCase() === submitted.toLowerCase()) {
         score++;
       }
@@ -85,31 +74,12 @@ class QuizService {
   }
 
   toResponse(quiz) {
-    return {
-      id: quiz.id,
-      title: quiz.title,
-      description: quiz.description,
-      createdBy: quiz.createdBy,
-      createdAt: quiz.createdAt,
-      updatedAt: quiz.updatedAt,
-      questions: quiz.Questions.map(q => ({
-        id: q.id,
-        questionText: q.questionText,
-        optionA: q.optionA,
-        optionB: q.optionB,
-        optionC: q.optionC,
-        optionD: q.optionD,
-        correctOption: q.correctOption,
-      })),
-    };
+    return quiz;
   }
 
   async getMyQuizzes(userId) {
-    const quizzes = await Quiz.findAll({
-      where: { createdBy: userId },
-      include: Question,
-    });
-    return quizzes.map(q => this.toResponse(q));
+    const quizzes = await Quiz.find({ createdBy: userId });
+    return quizzes;
   }
 }
 

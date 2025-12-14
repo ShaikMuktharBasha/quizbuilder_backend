@@ -1,26 +1,28 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
+const questionSchema = require('./Question');
 
-const Quiz = sequelize.define('Quiz', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+const quizSchema = new mongoose.Schema({
   title: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
+    type: String,
+    required: true,
   },
-  description: {
-    type: DataTypes.TEXT,
-  },
+  description: String,
   createdBy: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
+  questions: [questionSchema],
 }, {
-  tableName: 'Quizzes',
   timestamps: true,
 });
 
-module.exports = Quiz;
+quizSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
+
+module.exports = mongoose.model('Quiz', quizSchema);

@@ -1,46 +1,32 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Quiz = require('./Quiz');
-const User = require('./User');
+const mongoose = require('mongoose');
 
-const QuizResult = sequelize.define('QuizResult', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+const quizResultSchema = new mongoose.Schema({
   userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id',
-    },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
   quizId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Quiz,
-      key: 'id',
-    },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Quiz',
+    required: true,
   },
   score: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+    type: Number,
+    required: true,
   },
   submittedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    type: Date,
+    default: Date.now,
   },
-}, {
-  tableName: 'QuizResults',
-  timestamps: false, // Only submittedAt, no createdAt/updatedAt
 });
 
-Quiz.hasMany(QuizResult, { foreignKey: 'quizId' });
-QuizResult.belongsTo(Quiz, { foreignKey: 'quizId' });
-User.hasMany(QuizResult, { foreignKey: 'userId' });
-QuizResult.belongsTo(User, { foreignKey: 'userId' });
+quizResultSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+});
 
-module.exports = QuizResult;
+module.exports = mongoose.model('QuizResult', quizResultSchema);

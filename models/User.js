@@ -1,32 +1,39 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+const userSchema = new mongoose.Schema({
   username: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
+    type: String,
+    required: true,
   },
   email: {
-    type: DataTypes.STRING(200),
-    allowNull: false,
+    type: String,
+    required: true,
     unique: true,
   },
   password: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
+    type: String,
+    required: true,
   },
   role: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
+    default: 'USER',
   },
 }, {
-  tableName: 'Users',
-  timestamps: true, // Adds createdAt and updatedAt
+  timestamps: true,
 });
+
+// Add a method to mimic Sequelize's toJSON behavior
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    delete ret.password;
+    return ret;
+  }
+});
+
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
