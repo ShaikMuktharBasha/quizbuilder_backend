@@ -30,7 +30,7 @@ app.get('/api/health', (req, res) => {
     status: 'Server is running',
     database: statusMap[dbStatus] || 'Unknown',
     env: {
-      mongoUriSet: !!process.env.MONGODB_URI
+      mongoUriSet: !!(process.env.MONGODB_URI || process.env.MONGO_URI)
     }
   });
 });
