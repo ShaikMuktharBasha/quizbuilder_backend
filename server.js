@@ -13,14 +13,19 @@ const PORT = process.env.PORT || 9096;
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB before handling requests
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
-});
-
 app.get('/', (req, res) => {
   res.send('Quiz Builder Backend API - Available endpoints: /api/users, /api/quizzes, /api/results');
+});
+
+// Connect to MongoDB before handling requests
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    res.status(500).json({ error: 'Database connection failed' });
+  }
 });
 
 app.use('/api/quizzes', quizRoutes);
