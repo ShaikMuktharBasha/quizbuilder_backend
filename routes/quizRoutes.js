@@ -3,6 +3,7 @@ const QuizController = require('../controllers/QuizController');
 
 const router = express.Router();
 
+router.post('/generate', QuizController.generateQuiz);
 router.post('/', QuizController.createQuiz);
 router.get('/', QuizController.getAll);
 router.get('/:id', QuizController.getOne);

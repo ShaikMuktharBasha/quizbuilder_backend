@@ -13,6 +13,10 @@ const questionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  explanation: {
+    type: String,
+    required: false,
+  },
 });
 
 questionSchema.set('toJSON', {

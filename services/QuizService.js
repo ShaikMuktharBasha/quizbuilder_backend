@@ -17,6 +17,7 @@ class QuizService {
         optionC: q.optionC,
         optionD: q.optionD,
         correctOption: q.correctOption,
+        explanation: q.explanation,
       })),
     });
 
