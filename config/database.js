@@ -1,24 +1,42 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-let isConnected = false;
+// Global variable to cache the connection across invocations in serverless
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 const connectDB = async () => {
-  if (isConnected) {
-    console.log('MongoDB connection already established.');
-    return;
+  if (cached.conn) {
+    console.log('MongoDB connection cached');
+    return cached.conn;
   }
 
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI);
-    
-    isConnected = true;
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    // In serverless, we shouldn't exit the process, but we should probably throw
-    throw error;
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false, // Disable mongoose buffering
+      serverSelectionTimeoutMS: 5000, // Fail after 5 seconds if can't connect
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    };
+
+    console.log('Connecting to MongoDB...');
+    cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
+      console.log('MongoDB Connected');
+      return mongoose;
+    });
   }
+  
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error('MongoDB connection error:', e);
+    throw e;
+  }
+
+  return cached.conn;
 };
 
 module.exports = connectDB;
