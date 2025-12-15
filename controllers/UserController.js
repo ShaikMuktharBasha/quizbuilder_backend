@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const Quiz = require('../models/Quiz');
+const QuizResult = require('../models/QuizResult');
 
 class UserController {
   async signup(req, res) {
@@ -48,6 +50,30 @@ class UserController {
         return user;
       });
       res.json(usersResponse);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getProfile(req, res) {
+    try {
+      const userId = req.params.id;
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      const quizzesCreated = await Quiz.countDocuments({ createdBy: userId });
+      const quizzesTaken = await QuizResult.countDocuments({ userId: userId });
+      
+      const userResponse = user.toJSON();
+      delete userResponse.password;
+
+      res.json({
+        ...userResponse,
+        stats: {
+          quizzesCreated,
+          quizzesTaken
+        }
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

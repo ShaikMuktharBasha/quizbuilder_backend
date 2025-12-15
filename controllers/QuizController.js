@@ -13,9 +13,8 @@ class QuizController {
 
   async getAll(req, res) {
     try {
-      const quizzes = await QuizService.getAll();
-      const responses = quizzes.map(q => QuizService.toResponse(q));
-      res.json(responses);
+      const result = await QuizService.getAll(req.query);
+      res.json(result);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -63,6 +62,15 @@ class QuizController {
     try {
       const quizzes = await QuizService.getMyQuizzes(req.params.userId);
       res.json(quizzes);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getLeaderboard(req, res) {
+    try {
+      const leaderboard = await QuizService.getLeaderboard(req.params.id);
+      res.json(leaderboard);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

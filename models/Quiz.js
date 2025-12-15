@@ -7,6 +7,19 @@ const quizSchema = new mongoose.Schema({
     required: true,
   },
   description: String,
+  category: {
+    type: String,
+    default: 'General'
+  },
+  difficulty: {
+    type: String,
+    enum: ['Easy', 'Medium', 'Hard'],
+    default: 'Medium'
+  },
+  isPublished: {
+    type: Boolean,
+    default: false
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
