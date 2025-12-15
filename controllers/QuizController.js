@@ -2,19 +2,6 @@ const QuizService = require('../services/QuizService');
 const GeminiService = require('../services/GeminiService');
 
 class QuizController {
-  async generateQuiz(req, res) {
-    try {
-      const { topic, difficulty, count } = req.body;
-      if (!topic) {
-        return res.status(400).json({ error: 'Topic is required' });
-      }
-      const questions = await GeminiService.generateQuiz(topic, difficulty, count);
-      res.json(questions);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-
   async createQuiz(req, res) {
     try {
       const quiz = await QuizService.createQuiz(req.body);
