@@ -1,17 +1,23 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected) {
+    console.log('MongoDB connection already established.');
+    return;
+  }
+
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      // These options are no longer needed in Mongoose 6+, but keeping them doesn't hurt
-      // useNewUrlParser: true,
-      // useUnifiedTopology: true,
-    });
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    
+    isConnected = true;
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error: ${error.message}`);
-    process.exit(1);
+    // In serverless, we shouldn't exit the process, but we should probably throw
+    throw error;
   }
 };
 
