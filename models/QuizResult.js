@@ -29,4 +29,4 @@ quizResultSchema.set('toJSON', {
   }
 });
 
-module.exports = mongoose.model('QuizResult', quizResultSchema);
+module.exports = mongoose.models.QuizResult || mongoose.model('QuizResult', quizResultSchema);

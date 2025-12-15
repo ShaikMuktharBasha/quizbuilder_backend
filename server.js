@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 require('dotenv').config();
 
@@ -15,6 +16,23 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Quiz Builder Backend API - Available endpoints: /api/users, /api/quizzes, /api/results');
+});
+
+app.get('/api/health', (req, res) => {
+  const dbStatus = mongoose.connection.readyState;
+  const statusMap = {
+    0: 'Disconnected',
+    1: 'Connected',
+    2: 'Connecting',
+    3: 'Disconnecting',
+  };
+  res.json({
+    status: 'Server is running',
+    database: statusMap[dbStatus] || 'Unknown',
+    env: {
+      mongoUriSet: !!process.env.MONGODB_URI
+    }
+  });
 });
 
 // Connect to MongoDB before handling requests
