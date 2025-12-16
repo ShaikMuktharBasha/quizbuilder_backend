@@ -10,6 +10,7 @@ class ResultsController {
         .populate('userId');
       
       const dtos = results.map(r => ({
+        quizId: r.quizId ? r.quizId._id : null,
         username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
@@ -29,6 +30,7 @@ class ResultsController {
         .populate('userId');
       
       const dtos = results.map(r => ({
+        quizId: r.quizId ? r.quizId._id : null,
         username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
@@ -48,6 +50,7 @@ class ResultsController {
         .populate('userId');
       
       const dtos = results.map(r => ({
+        quizId: r.quizId ? r.quizId._id : null,
         username: r.userId ? r.userId.username : 'Unknown User',
         score: r.score,
         submittedAt: r.submittedAt,
