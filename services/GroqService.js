@@ -78,7 +78,7 @@ Do not include any markdown or code block markers. Return strictly the JSON arra
             content: promptRefined,
           },
         ],
-        model: "mixtral-8x7b-32768", 
+        model: "llama-3.3-70b-versatile", 
         temperature: 0.5, // slightly creative but deterministic enough for JSON
       });
 
