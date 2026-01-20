@@ -4,6 +4,7 @@ const QuizController = require('../controllers/QuizController');
 const router = express.Router();
 
 // Specific routes MUST come before parameterized routes (/:id)
+router.post('/generate', QuizController.generate); // AI Generation Route
 router.get('/myquizzes/:userId', QuizController.getMyQuizzes);
 
 router.post('/', QuizController.createQuiz);
